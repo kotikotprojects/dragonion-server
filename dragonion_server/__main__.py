@@ -1,4 +1,4 @@
-from DragonionServer import main
+from dragonion_server import main
 
 
 if __name__ == '__main__':

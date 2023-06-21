@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "DragonionServer"
+name = "dragonion_server"
 version = "0.1.0"
 description = ""
 authors = ["BarsTiger <zxcbarstiger@gmail.com>"]
@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.10"
 
 [tool.poetry.scripts]
-dragonion-server = "DragonionServer:main"
+dragonion-server = "dragonion_server:main"
 
 [build-system]
 requires = ["poetry-core"]
