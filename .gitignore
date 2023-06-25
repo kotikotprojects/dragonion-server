@@ -3,6 +3,8 @@
 /tests/
 /build/
 /dist/
+/data/
+data.storage
 __pycache__
 
 poetry.lock
