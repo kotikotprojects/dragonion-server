@@ -51,6 +51,7 @@ class Onion(object):
         self.tor_data_directory = None
         self.tor_path = dirs.get_tor_paths()
         self.tor_proc = None
+        # noinspection PyTypeChecker
         self.c: Controller = None
         self.connected_to_tor = False
         self.auth_string = None

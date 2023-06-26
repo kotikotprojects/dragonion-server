@@ -1,8 +1,5 @@
 import os
-import sys
 import platform
-
-from . import const
 
 
 def dir_size(start_path):
