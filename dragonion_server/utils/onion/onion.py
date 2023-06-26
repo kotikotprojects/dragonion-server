@@ -237,7 +237,8 @@ class Onion(object):
             service.key_type = "ED25519-V3"
             service.key_content = res.private_key
 
-        self.auth_string = service.client_auth_priv_key
+        self.auth_string = \
+            base64.b64encode(f'{res.service_id}:descriptor:x25519:{service.client_auth_priv_key}'.encode()).decode()
 
         services[name] = service
 

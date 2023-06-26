@@ -5,6 +5,7 @@
 /dist/
 /data/
 data.storage
+*.auth
 __pycache__
 
 poetry.lock
