@@ -41,30 +41,28 @@ def key_str(key):
 
 
 class Onion(object):
-    def __init__(self):
-        self.tor_data_directory_name = None
-        self.tor_control_socket = None
-        self.tor_control_port = None
-        self.tor_torrc = None
-        self.tor_socks_port = None
-        self.tor_cookie_auth_file = None
-        self.tor_data_directory = None
-        self.tor_path = dirs.get_tor_paths()
-        self.tor_proc = None
-        # noinspection PyTypeChecker
-        self.c: Controller = None
-        self.connected_to_tor = False
-        self.auth_string = None
-        self.graceful_close_onions = []
+    tor_data_directory_name: str
+    tor_control_socket: str | None
+    tor_control_port: int | None
+    tor_torrc: str
+    tor_socks_port: int
+    tor_cookie_auth_file: str
+    tor_data_directory: tempfile.TemporaryDirectory
+    tor_path: str = dirs.get_tor_paths()
+    tor_proc: subprocess.Popen
+    c: Controller
+    connected_to_tor: bool = False
+    auth_string: str
+    graceful_close_onions: list = list()
 
     def kill_same_tor(self):
         for proc in psutil.process_iter(["pid", "name", "username"]):
             try:
                 cmdline = proc.cmdline()
                 if (
-                    cmdline[0] == self.tor_path
-                    and cmdline[1] == "-f"
-                    and cmdline[2] == self.tor_torrc
+                        cmdline[0] == self.tor_path
+                        and cmdline[1] == "-f"
+                        and cmdline[2] == self.tor_torrc
                 ):
                     proc.terminate()
                     proc.wait()
@@ -115,9 +113,7 @@ class Onion(object):
         with open(self.tor_torrc, "w") as f:
             f.write(torrc_template)
 
-    def connect(self, connect_timeout=120):
-        self.c = None
-
+    def connect(self, connect_timeout=60):
         self.tor_data_directory = tempfile.TemporaryDirectory(
             dir=dirs.build_tmp_dir()
         )
@@ -179,9 +175,11 @@ class Onion(object):
                 try:
                     self.tor_proc.terminate()
                     print(
-                        "Taking too long to connect to Tor. Maybe you aren't connected to the Internet, "
-                        "or have an inaccurate system clock?"
+                        "Taking too long to connect to Tor. Maybe you aren't "
+                        "connected to the Internet, or have an inaccurate "
+                        "system clock?"
                     )
+                    self.cleanup()
                     raise
                 except FileNotFoundError:
                     pass
@@ -209,7 +207,12 @@ class Onion(object):
         )
         return services[name]
 
-    def start_onion_service(self, name):
+    def start_onion_service(self, name: str) -> str:
+        """
+        Starts onion service
+        :param name: Name of created service (must exist in data.storage)
+        :return: .onion url
+        """
         if name not in services.keys():
             raise 'Service not created'
 
@@ -238,7 +241,8 @@ class Onion(object):
             service.key_content = res.private_key
 
         self.auth_string = \
-            base64.b64encode(f'{res.service_id}:descriptor:x25519:{service.client_auth_priv_key}'.encode()).decode()
+            base64.b64encode(f'{res.service_id}:descriptor:x25519:'
+                             f'{service.client_auth_priv_key}'.encode()).decode()
 
         services[name] = service
 
@@ -266,8 +270,8 @@ class Onion(object):
                 rendezvous_circuit_ids = []
                 for c in self.c.get_circuits():
                     if (
-                        c.purpose == "HS_SERVICE_REND"
-                        and c.rend_query in self.graceful_close_onions
+                            c.purpose == "HS_SERVICE_REND"
+                            and c.rend_query in self.graceful_close_onions
                     ):
                         rendezvous_circuit_ids.append(c.id)
 
@@ -291,7 +295,8 @@ class Onion(object):
                     else:
                         circuits = "circuits"
                     print(
-                        f"\rWaiting for {num_rend_circuits} Tor rendezvous {circuits} to close {symbols[symbols_i]} ",
+                        f"\rWaiting for {num_rend_circuits} Tor rendezvous "
+                        f"{circuits} to close {symbols[symbols_i]} ",
                         end="",
                     )
                     symbols_i = (symbols_i + 1) % len(symbols)
@@ -316,5 +321,7 @@ class Onion(object):
         except Exception as e:
             print(f'Cannot cleanup temporary directory: {e}')
 
+    @property
     def get_tor_socks_port(self):
+        assert isinstance(self.tor_socks_port, int)
         return "127.0.0.1", self.tor_socks_port
