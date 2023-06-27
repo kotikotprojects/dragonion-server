@@ -1,12 +1,11 @@
 from stem.control import Controller
-from stem import SocketClosed, ProtocolError
+from stem import ProtocolError
 
 import textwrap
 import socket
 import random
 import os
 import psutil
-import shlex
 import subprocess
 import tempfile
 import platform
@@ -113,7 +112,7 @@ class Onion(object):
         with open(self.tor_torrc, "w") as f:
             f.write(torrc_template)
 
-    def connect(self, connect_timeout=60):
+    def connect(self):
         self.tor_data_directory = tempfile.TemporaryDirectory(
             dir=dirs.build_tmp_dir()
         )
@@ -121,14 +120,12 @@ class Onion(object):
 
         self.fill_torrc(self.tor_data_directory_name)
 
-        start_ts = time.time()
+        time.time()
         if platform.system() == "Windows":
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             self.tor_proc = subprocess.Popen(
                 [self.tor_path, "-f", self.tor_torrc],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
                 startupinfo=startupinfo,
             )
         else:
@@ -136,8 +133,6 @@ class Onion(object):
 
             self.tor_proc = subprocess.Popen(
                 [self.tor_path, "-f", self.tor_torrc],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
                 env=env,
             )
 
@@ -149,40 +144,6 @@ class Onion(object):
         else:
             self.c = Controller.from_socket_file(path=self.tor_control_socket)
             self.c.authenticate()
-
-        while True:
-            try:
-                res = self.c.get_info("status/bootstrap-phase")
-            except SocketClosed:
-                raise
-
-            res_parts = shlex.split(res)
-            progress = res_parts[2].split("=")[1]
-            summary = res_parts[4].split("=")[1]
-
-            print(
-                f"\rConnecting to the Tor network: {progress}% - {summary}\033[K",
-                end="",
-            )
-
-            if summary == "Done":
-                print("")
-                break
-            time.sleep(0.2)
-
-            if time.time() - start_ts > connect_timeout:
-                print("")
-                try:
-                    self.tor_proc.terminate()
-                    print(
-                        "Taking too long to connect to Tor. Maybe you aren't "
-                        "connected to the Internet, or have an inaccurate "
-                        "system clock?"
-                    )
-                    self.cleanup()
-                    raise
-                except FileNotFoundError:
-                    pass
 
         self.connected_to_tor = True
 
@@ -231,7 +192,7 @@ class Onion(object):
             print("Tor error: {}".format(e.args[0]))
             raise
 
-        onion_host = res.service_id + ".onion"
+        onion_id = res.service_id
 
         self.graceful_close_onions.append(res.service_id)
 
@@ -240,13 +201,12 @@ class Onion(object):
             service.key_type = "ED25519-V3"
             service.key_content = res.private_key
 
-        self.auth_string = \
-            base64.b64encode(f'{res.service_id}:descriptor:x25519:'
-                             f'{service.client_auth_priv_key}'.encode()).decode()
+        self.auth_string = f'{res.service_id}:descriptor:' \
+                           f'x25519:{service.client_auth_priv_key}'
 
         services[name] = service
 
-        return onion_host
+        return onion_id
 
     def stop_onion_service(self, name):
         service: config.models.ServiceModel = services[name]

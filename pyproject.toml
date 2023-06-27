@@ -15,6 +15,7 @@ sqlitedict = "^2.1.0"
 cleo = "^2.0.1"
 fastapi = "^0.98.0"
 uvicorn = "^0.22.0"
+rich = "^13.4.2"
 
 [tool.poetry.scripts]
 dragonion-server = "dragonion_server:main"
