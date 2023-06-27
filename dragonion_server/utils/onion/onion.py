@@ -49,7 +49,7 @@ class Onion(object):
     tor_cookie_auth_file: str
     tor_data_directory: tempfile.TemporaryDirectory
     tor_path: str = dirs.get_tor_paths()
-    tor_proc: subprocess.Popen
+    tor_proc: subprocess.Popen | None
     c: Controller
     connected_to_tor: bool = False
     auth_string: str
