@@ -13,6 +13,8 @@ import time
 import base64
 import nacl.public
 
+from rich import print
+
 from dragonion_server.utils.core import dirs
 from dragonion_server.utils import config
 from dragonion_server.utils.config.db import services
@@ -84,7 +86,6 @@ class Onion(object):
             'SocksPort': str(self.tor_socks_port),
             'CookieAuthentication': '1',
             'CookieAuthFile': self.tor_cookie_auth_file,
-            'ClientOnionAuthDir': os.path.join(tor_data_directory_name, 'auth'),
             'AvoidDiskWrites': '1',
             'Log': [
                 'NOTICE stdout'
