@@ -1,7 +1,7 @@
 from stem.control import Controller
+from .stem_process import launch_tor_with_config
 from stem import ProtocolError
 
-import textwrap
 import socket
 import random
 import os
@@ -69,15 +69,7 @@ class Onion(object):
             except Exception as e:
                 assert e
 
-    def fill_torrc(self, tor_data_directory_name):
-        torrc_template = textwrap.dedent("""
-            DataDirectory {data_directory}
-            SocksPort {socks_port}
-            CookieAuthentication 1
-            CookieAuthFile {cookie_auth_file}
-            AvoidDiskWrites 1
-            Log notice stdout
-        """)
+    def get_config(self, tor_data_directory_name) -> dict:
         self.tor_cookie_auth_file = os.path.join(tor_data_directory_name, "cookie")
         try:
             self.tor_socks_port = get_available_port(1000, 65535)
@@ -87,54 +79,46 @@ class Onion(object):
 
         self.kill_same_tor()
 
+        tor_config = {
+            'DataDirectory': tor_data_directory_name,
+            'SocksPort': str(self.tor_socks_port),
+            'CookieAuthentication': '1',
+            'CookieAuthFile': self.tor_cookie_auth_file,
+            'ClientOnionAuthDir': os.path.join(tor_data_directory_name, 'auth'),
+            'AvoidDiskWrites': '1',
+            'Log': [
+                'NOTICE stdout'
+            ]
+        }
+
         if platform.system() in ["Windows", "Darwin"]:
-            torrc_template += "ControlPort {control_port}\n"
             try:
                 self.tor_control_port = get_available_port(1000, 65535)
+                tor_config = tor_config | {"ControlPort": str(self.tor_control_port)}
             except Exception as e:
                 print(f"Cannot bind any control port: {e}")
             self.tor_control_socket = None
         else:
-            torrc_template += "ControlSocket {control_socket}\n"
             self.tor_control_port = None
             self.tor_control_socket = os.path.join(
                 tor_data_directory_name, "control_socket"
             )
+            tor_config = tor_config | {"ControlSocket": str(self.tor_control_socket)}
 
-        torrc_template = torrc_template.format(
-            data_directory=tor_data_directory_name,
-            control_port=str(self.tor_control_port),
-            control_socket=str(self.tor_control_socket),
-            cookie_auth_file=self.tor_cookie_auth_file,
-            socks_port=str(self.tor_socks_port)
-        )
-
-        with open(self.tor_torrc, "w") as f:
-            f.write(torrc_template)
-
+        return tor_config
+    
     def connect(self):
         self.tor_data_directory = tempfile.TemporaryDirectory(
             dir=dirs.build_tmp_dir()
         )
         self.tor_data_directory_name = self.tor_data_directory.name
 
-        self.fill_torrc(self.tor_data_directory_name)
-
-        time.time()
-        if platform.system() == "Windows":
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            self.tor_proc = subprocess.Popen(
-                [self.tor_path, "-f", self.tor_torrc],
-                startupinfo=startupinfo,
-            )
-        else:
-            env = {"LD_LIBRARY_PATH": os.path.dirname(self.tor_path)}
-
-            self.tor_proc = subprocess.Popen(
-                [self.tor_path, "-f", self.tor_torrc],
-                env=env,
-            )
+        self.tor_proc = launch_tor_with_config(
+            config=self.get_config(self.tor_data_directory_name),
+            tor_cmd=self.tor_path,
+            take_ownership=True,
+            init_msg_handler=print
+        )
 
         time.sleep(2)
 
