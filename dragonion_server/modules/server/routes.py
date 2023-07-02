@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Request
-from fastapi.responses import PlainTextResponse
+from fastapi import APIRouter, WebSocket
+from .handlers.websocket_server import serve_websocket
 
 
 router = APIRouter()
 
 
-@router.get("/", response_model=str)
-async def root(request: Request):
-    return PlainTextResponse("dragonion-server")
+@router.websocket("/{room_name}")
+async def root(websocket: WebSocket, room_name: str):
+    await serve_websocket(websocket, room_name)

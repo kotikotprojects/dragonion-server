@@ -14,7 +14,9 @@ def get_app(port: int, name: str) -> FastAPI:
     )
 
 
-def run(name: str, port: int = get_available_port()):
+def run(name: str, port: int | None = get_available_port()):
+    if port is None:
+        port = get_available_port()
     app = get_app(port, name)
     app.include_router(router)
     uvicorn.run(app, host='0.0.0.0', port=port)
