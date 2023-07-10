@@ -101,9 +101,9 @@ class Onion(object):
             self.tor_control_socket = None
         else:
             self.tor_control_port = None
-            self.tor_control_socket = os.path.join(
+            self.tor_control_socket = os.path.abspath(os.path.join(
                 tor_data_directory_name, "control_socket"
-            )
+            ))
             tor_config = tor_config | {"ControlSocket": str(self.tor_control_socket)}
 
         return tor_config
