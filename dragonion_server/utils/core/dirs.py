@@ -1,5 +1,7 @@
 import os
 import platform
+import shutil
+import sys
 
 
 def dir_size(start_path):
@@ -19,18 +21,29 @@ def get_resource_path(filename):
 
 
 def get_tor_paths():
-    from ..onion.tor_downloader import download_tor
-    if platform.system() in ["Linux", "Darwin"]:
-        tor_path = os.path.join(build_data_dir(), 'tor/tor')
-    elif platform.system() == "Windows":
-        tor_path = os.path.join(build_data_dir(), 'tor/tor.exe')
+    if (platform.system() != "Darwin" and 
+            platform.machine().lower() in ['aarch64', 'arm64']):
+        if shutil.which('tor'):
+            return 'tor'
+        else:
+            print('Detected ARM system and tor is not installed or added to PATH. '
+                  'Please, consider reading documentation and installing application '
+                  'properly')
+            sys.exit(1)
+            
     else:
-        raise "Platform not supported"
+        from ..onion.tor_downloader import download_tor
+        if platform.system() in ["Linux", "Darwin"]:
+            tor_path = os.path.join(build_data_dir(), 'tor/tor')
+        elif platform.system() == "Windows":
+            tor_path = os.path.join(build_data_dir(), 'tor/tor.exe')
+        else:
+            raise Exception("Platform not supported")
 
-    if not os.path.isfile(tor_path):
-        download_tor(dist=build_data_dir())
+        if not os.path.isfile(tor_path):
+            download_tor(dist=build_data_dir())
 
-    return tor_path
+        return tor_path
 
 
 def build_data_dir():
