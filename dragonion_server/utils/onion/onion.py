@@ -134,6 +134,12 @@ class Onion(object):
 
     @staticmethod
     def write_onion_service(name: str, port: int):
+        """
+        Writes onion service to config
+        :param name: Name of service
+        :param port: Port of real service on local machine to proxy
+        :return: ServiceModel object
+        """
         if name in services.keys():
             service: config.models.ServiceModel = services[name]
             service.port = port

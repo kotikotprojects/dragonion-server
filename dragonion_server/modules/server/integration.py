@@ -8,6 +8,12 @@ from rich import print
 
 
 def integrate_onion(port: int, name: str) -> Onion:
+    """
+    Starts onion service, writes it to config 
+    :param port: Port, where local service is started
+    :param name: Name of service to get or write to config
+    :return: Onion object, that is connected and service is started
+    """
     onion = Onion()
 
     try:

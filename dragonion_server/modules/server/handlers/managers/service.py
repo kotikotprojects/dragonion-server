@@ -29,6 +29,11 @@ class Service(object):
             await room.broadcast_error(error_message)
 
     async def get_room_by_connection(self, connection: Connection) -> Room:
+        """
+        Searches for room by valid connection object in it
+        :param connection: Connection in unknown room to search
+        :return: 
+        """
         for room in self.rooms.values():
             if connection in room.connections.values():
                 return room
@@ -36,11 +41,23 @@ class Service(object):
     async def get_connection_by_attribute(
             self, attribute: str, value: str
     ) -> Connection:
+        """
+        Gets connection in some room by attribute and value in it
+        :param attribute: 
+        :param value: 
+        :return: 
+        """
         for room in self.rooms.values():
             if connection := await room.get_connection_by(attribute, value):
                 return connection
 
     async def close_room(self, room_name: str, reason: str = 'Unknown reason'):
+        """
+        Closes all connections in room
+        :param room_name: Close name
+        :param reason: Reason to close room, default is Unknown reason
+        :return: 
+        """
         room = self.rooms.get(room_name)
         if room is None:
             return
