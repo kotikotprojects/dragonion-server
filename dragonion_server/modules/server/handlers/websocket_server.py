@@ -1,6 +1,6 @@
 from fastapi import WebSocket, WebSocketDisconnect
 from .managers.service import Service
-from .objects.webmessage import (
+from dragonion_core.proto.web import (
     webmessages_union,
     WebMessage
 )

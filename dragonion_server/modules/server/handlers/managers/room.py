@@ -3,7 +3,7 @@ from .connection import Connection
 from typing import Dict
 from fastapi import WebSocket
 
-from ..objects.webmessage import (
+from dragonion_core.proto.web import (
     webmessages_union,
     WebMessageMessage,
     WebNotificationMessage,

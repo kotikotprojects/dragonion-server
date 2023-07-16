@@ -1,7 +1,7 @@
 import sys
 
 from dragonion_server.utils.onion import Onion
-from dragonion_server.utils.generated_auth.db import AuthFile
+from dragonion_core.proto.file import AuthFile
 from dragonion_server.utils.config.db import services
 
 from rich import print

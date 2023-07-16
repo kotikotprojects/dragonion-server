@@ -1,6 +1,6 @@
 from attrs import define
 from fastapi import WebSocket
-from ..objects.webmessage import (
+from dragonion_core.proto.web import (
     webmessages_union,
     webmessage_error_message_literal,
     WebErrorMessage,

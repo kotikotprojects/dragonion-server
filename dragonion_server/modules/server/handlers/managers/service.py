@@ -2,7 +2,7 @@ from .connection import Connection
 from .room import Room
 from typing import Dict
 
-from ..objects.webmessage import (
+from dragonion_core.proto.web import (
     webmessage_error_message_literal
 )
 
