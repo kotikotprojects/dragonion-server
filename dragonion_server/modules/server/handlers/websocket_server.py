@@ -1,9 +1,10 @@
 from fastapi import WebSocket, WebSocketDisconnect
 from .managers.service import Service
-from dragonion_core.proto.web import (
+from dragonion_core.proto.web.webmessage import (
     webmessages_union,
     WebMessage
 )
+from .managers.exceptions import GotInvalidWebmessage
 
 
 service = Service()
@@ -23,26 +24,35 @@ async def serve_websocket(websocket: WebSocket, room_name: str):
     while True:
         try:
             data = await websocket.receive_text()
-            print(f"Received in {room_name}: ", data)
 
             try:
-                webmessage: webmessages_union = \
-                    WebMessage.from_json(data)
+                webmessage: webmessages_union = WebMessage.from_json(data)
             except Exception as e:
                 print(f"Cannot decode message, {e}")
                 await connection.send_error("invalid_webmessage")
                 continue
 
-            await room.broadcast_webmessage(webmessage)
+            try:
+                match webmessage.type:
+                    case "disconnect":
+                        await room.disconnect(connection)
+                    case "broadcastable":
+                        await room.broadcast_message(webmessage)
+
+            except GotInvalidWebmessage:
+                print('Invalid webmsg')
+                await connection.send_error("invalid_webmessage")
 
         except RuntimeError:
             username = await room.disconnect(connection)
-            await room.broadcast_user_disconnected(username)
+            if username is not None:
+                await room.broadcast_user_disconnected(username)
             print(f'Closed {username}')
             break
         except WebSocketDisconnect:
             username = await room.disconnect(connection)
-            await room.broadcast_user_disconnected(username)
+            if username is not None:
+                await room.broadcast_user_disconnected(username)
             print(f'Closed {username}')
             break
         except Exception as e:

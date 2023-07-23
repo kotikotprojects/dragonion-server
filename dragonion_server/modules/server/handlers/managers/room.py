@@ -1,15 +1,21 @@
 from attrs import define
 from .connection import Connection
+from .exceptions import GotInvalidWebmessage
 from typing import Dict
 from fastapi import WebSocket
 
-from dragonion_core.proto.web import (
+from json.decoder import JSONDecodeError
+
+from dragonion_core.proto.web.webmessage import (
     webmessages_union,
     WebMessageMessage,
+    WebBroadcastableMessage,
     WebNotificationMessage,
     webmessage_error_message_literal,
-    WebErrorMessage, 
-    WebUserMessage
+    WebErrorMessage,
+    WebConnectionMessage,
+    WebDisconnectMessage,
+    WebConnectionResultMessage
 )
 
 
@@ -17,7 +23,7 @@ from dragonion_core.proto.web import (
 class Room(object):
     connections: Dict[str, Connection] = {}
 
-    async def accept_connection(self, ws: WebSocket) -> Connection:
+    async def accept_connection(self, ws: WebSocket) -> Connection | None:
         """
         Accepts connection, checks username availability and adds it to dict of 
         connections 
@@ -26,19 +32,44 @@ class Room(object):
         """
         print('Incoming connection')
         await ws.accept()
+        try:
+            connection_message = WebConnectionMessage.from_json(
+                await ws.receive_text()
+            )
+        except JSONDecodeError:
+            await ws.send_text(WebErrorMessage(
+                'invalid_webmessage'
+            ).to_json())
+            await ws.close(reason='invalid_webmessage')
+            return 
+        
         connection = Connection(
-            username=(username := await ws.receive_text()),
+            username=connection_message.username,
             ws=ws,
-            public_key=''
+            public_key=connection_message.public_key
         )
-        if username in self.connections.keys():
+        
+        if connection_message.username in self.connections.keys():
             await connection.send_error(
                 'username_exists'
             )
+            await ws.close(reason='username_exists')
+            return 
 
-        self.connections[username] = connection
-        await connection.send_connect()
-        print(f'Accepted {username}')
+        self.connections[connection_message.username] = connection
+        await connection.send_webmessage(WebConnectionResultMessage(
+            connected_users=dict(
+                map(
+                    lambda i, j: (i, j),
+                    list(self.connections.keys()),
+                    [_connection.public_key for _connection 
+                     in self.connections.values()]
+                )
+            )
+        ))
+
+        await self.broadcast_webmessage(connection_message)
+        print(f'Accepted {connection_message.username}')
         return connection
 
     async def broadcast_webmessage(self, obj: webmessages_union):
@@ -51,19 +82,23 @@ class Room(object):
             print(f'Sending to {connection.username}: {obj}')
             await connection.send_webmessage(obj)
 
-    async def broadcast_message(self, from_username: str, message: str):
+    async def broadcast_message(self, broadcastable: WebBroadcastableMessage):
         """
         Broadcasts message to every user in room
-        :param from_username: User that sent message
-        :param message: content
+        :param broadcastable: String object with json representation of 
+                                   WebBroadcastableMessage
         :return: 
         """
-        await self.broadcast_webmessage(
-            WebMessageMessage(
-                username=from_username,
-                message=message
-            )
-        )
+        try: 
+            for to_username in broadcastable.messages.keys():
+                try:
+                    await self.connections[to_username].send_webmessage(
+                        broadcastable.messages[to_username]
+                    )
+                except KeyError:
+                    continue
+        except JSONDecodeError:
+            raise GotInvalidWebmessage
 
     async def broadcast_notification(self, message: str):
         """
@@ -96,11 +131,10 @@ class Room(object):
         """
         Broadcasts that user is disconnected
         :param username: Username of user that disconnected
-        :return: 
+        :return:
         """
         await self.broadcast_webmessage(
-            WebUserMessage(
-                type="disconnect",
+            WebDisconnectMessage(
                 username=username
             )
         )

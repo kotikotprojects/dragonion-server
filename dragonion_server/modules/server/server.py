@@ -32,3 +32,15 @@ def run(name: str, port: int | None = get_available_port()):
     app = get_app(port, name)
     app.include_router(router)
     uvicorn.run(app, host='0.0.0.0', port=port)
+
+
+def run_without_onion(name: str, port: int | None = get_available_port()):
+    if port is None:
+        port = get_available_port()
+        
+    app = FastAPI(
+        title=f'dragonion-server: {name}',
+        description=f'Secure dragonion chat endpoint server - service {name}'
+    )
+    app.include_router(router)
+    uvicorn.run(app, host='0.0.0.0', port=port)

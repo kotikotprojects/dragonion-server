@@ -1,10 +1,9 @@
 from attrs import define
 from fastapi import WebSocket
-from dragonion_core.proto.web import (
+from dragonion_core.proto.web.webmessage import (
     webmessages_union,
     webmessage_error_message_literal,
-    WebErrorMessage,
-    WebUserMessage
+    WebErrorMessage
 )
 
 
@@ -34,17 +33,5 @@ class Connection(object):
         await self.send_webmessage(
             WebErrorMessage(
                 error_message=error_message
-            )
-        )
-
-    async def send_connect(self):
-        """
-        When new user is connected, send info about user
-        :return: 
-        """
-        await self.send_webmessage(
-            WebUserMessage(
-                type="connect",
-                username=self.username
             )
         )
