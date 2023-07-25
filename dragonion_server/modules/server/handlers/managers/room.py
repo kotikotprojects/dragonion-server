@@ -46,7 +46,8 @@ class Room(object):
         connection = Connection(
             username=connection_message.username,
             ws=ws,
-            public_key=connection_message.public_key
+            public_key=connection_message.public_key,
+            password=connection_message.password
         )
         
         if connection_message.username in self.connections.keys():
@@ -61,9 +62,12 @@ class Room(object):
             connected_users=dict(
                 map(
                     lambda i, j: (i, j),
-                    list(self.connections.keys()),
+                    [_username for _username in list(self.connections.keys())
+                     if self.connections[_username].password ==
+                     connection_message.password],
                     [_connection.public_key for _connection 
-                     in self.connections.values()]
+                     in self.connections.values() if _connection.password ==
+                     connection_message.password]
                 )
             )
         ))

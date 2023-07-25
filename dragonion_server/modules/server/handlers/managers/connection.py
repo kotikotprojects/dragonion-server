@@ -12,6 +12,7 @@ class Connection(object):
     ws: WebSocket
     username: str
     public_key: str
+    password: str
 
     async def send_webmessage(self, obj: webmessages_union):
         """
