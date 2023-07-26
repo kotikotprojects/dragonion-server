@@ -8,6 +8,7 @@ from json.decoder import JSONDecodeError
 
 from dragonion_core.proto.web.webmessage import (
     webmessages_union,
+    set_time,
     WebMessageMessage,
     WebBroadcastableMessage,
     WebNotificationMessage,
@@ -37,9 +38,9 @@ class Room(object):
                 await ws.receive_text()
             )
         except JSONDecodeError:
-            await ws.send_text(WebErrorMessage(
+            await ws.send_text(set_time(WebErrorMessage(
                 'invalid_webmessage'
-            ).to_json())
+            )).to_json())
             await ws.close(reason='invalid_webmessage')
             return 
         

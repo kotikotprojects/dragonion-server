@@ -1,6 +1,7 @@
 from attrs import define
 from fastapi import WebSocket
 from dragonion_core.proto.web.webmessage import (
+    set_time,
     webmessages_union,
     webmessage_error_message_literal,
     WebErrorMessage
@@ -20,7 +21,7 @@ class Connection(object):
         :param obj: Should be some type of WebMessage
         :return: 
         """
-        await self.ws.send_text(obj.to_json())
+        await self.ws.send_text(set_time(obj).to_json())
 
     async def send_error(
             self,
