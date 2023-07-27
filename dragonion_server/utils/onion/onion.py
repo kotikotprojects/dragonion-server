@@ -124,7 +124,7 @@ class Onion(object):
 
         time.sleep(2)
 
-        if platform.system() in ["Windows", "Darwin"]:
+        if not self.tor_control_socket:
             self.c = Controller.from_port(port=self.tor_control_port)
             self.c.authenticate()
         else:
