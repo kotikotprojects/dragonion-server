@@ -19,6 +19,8 @@ from dragonion_core.proto.web.webmessage import (
     WebConnectionResultMessage
 )
 
+from datetime import datetime
+
 
 @define
 class Room(object):
@@ -74,7 +76,7 @@ class Room(object):
         ))
 
         await self.broadcast_webmessage(connection_message)
-        print(f'Accepted {connection_message.username}')
+        print(f'[{datetime.now().time()}] Accepted {connection_message.username}')
         return connection
 
     async def broadcast_webmessage(self, obj: webmessages_union):
@@ -84,7 +86,6 @@ class Room(object):
         :return: 
         """
         for connection in self.connections.values():
-            print(f'Sending to {connection.username}: {obj}')
             await connection.send_webmessage(obj)
 
     async def broadcast_message(self, broadcastable: WebBroadcastableMessage):
@@ -173,7 +174,6 @@ class Room(object):
                 reason=close_reason
             )
         except Exception as e:
-            print(f'Cannot close {connection.username} ws, '
-                  f'maybe it\'s already closed: {e}')
+            assert e
 
         return connection.username

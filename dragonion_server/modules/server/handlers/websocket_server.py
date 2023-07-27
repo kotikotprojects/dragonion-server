@@ -6,6 +6,7 @@ from dragonion_core.proto.web.webmessage import (
 )
 from .managers.exceptions import GotInvalidWebmessage
 
+from datetime import datetime
 
 service = Service()
 
@@ -17,7 +18,7 @@ async def serve_websocket(websocket: WebSocket, room_name: str):
     :param room_name: Room name to connect ws to
     :return: 
     """
-    print(f'Connection opened room {room_name}')
+    print(f'[{datetime.now().time()}] Connection opened room {room_name}')
     room = await service.get_room(room_name)
     connection = await room.accept_connection(websocket)
 
@@ -28,7 +29,6 @@ async def serve_websocket(websocket: WebSocket, room_name: str):
             try:
                 webmessage: webmessages_union = WebMessage.from_json(data)
             except Exception as e:
-                print(f"Cannot decode message, {e}")
                 await connection.send_error("invalid_webmessage")
                 continue
 
@@ -40,21 +40,21 @@ async def serve_websocket(websocket: WebSocket, room_name: str):
                         await room.broadcast_message(webmessage)
 
             except GotInvalidWebmessage:
-                print('Invalid webmsg')
                 await connection.send_error("invalid_webmessage")
 
         except RuntimeError:
             username = await room.disconnect(connection)
             if username is not None:
                 await room.broadcast_user_disconnected(username)
-            print(f'Closed {username}')
+            print(f'[{datetime.now().time()}] Closed {username}')
             break
         except WebSocketDisconnect:
             username = await room.disconnect(connection)
             if username is not None:
                 await room.broadcast_user_disconnected(username)
-            print(f'Closed {username}')
+            print(f'[{datetime.now().time()}] Closed {username}')
             break
         except Exception as e:
-            print(f'Exception in {connection.username}: {e.__class__}: {e}')
+            print(f'[{datetime.now().time()}] Exception in '
+                  f'{connection.username}: {e.__class__}: {e}')
             continue
