@@ -92,7 +92,8 @@ class Onion(object):
             ]
         }
 
-        if platform.system() in ["Windows", "Darwin"]:
+        if platform.system() in ["Windows", "Darwin"] or \
+                len(tor_data_directory_name) > 90:
             try:
                 self.tor_control_port = get_available_port(1000, 65535)
                 tor_config = tor_config | {"ControlPort": str(self.tor_control_port)}
