@@ -3,35 +3,13 @@ Websocket chat server on-top of onion network for
 [dragonion](https://github.com/dragonionx/dragonion)
 
 ## 📜 Table of Contents
-<!-- TOC -->
 * [🐲 dragonion-server](#-dragonion-server)
   * [📜 Table of Contents](#-table-of-contents)
-  * [🛣️ Usage plan](#-usage-plan)
-  * [🔖️ About](#-about)
+  * [🛣️ Usage plan](#%EF%B8%8F-usage-plan)
+  * [🔖️ About](#%EF%B8%8F-about)
   * [💻 Usage](#-usage)
-      * [Guide sections:](#guide-sections)
-      * [Getting help](#getting-help)
-      * [Running a service](#running-a-service)
-      * [Updating a service](#updating-a-service)
-      * [Removing a service](#removing-a-service)
   * [⚙️ Configuration guide](#-configuration-guide)
-    * [Windows](#windows)
-      * [Pre-requirements:](#pre-requirements)
-      * [Install options:](#install-options)
-        * [Use pipx](#use-pipx)
-        * [Clone repo and use venv](#clone-repo-and-use-venv)
-    * [Linux](#linux)
-      * [Pre-requirements (install them via your package manager):](#pre-requirements-install-them-via-your-package-manager)
-      * [Install options:](#install-options-1)
-        * [Use pipx](#use-pipx-1)
-        * [Clone repo and use venv](#clone-repo-and-use-venv-1)
-    * [MacOS](#macos)
-      * [Pre-requirements (install them via your package manager):](#pre-requirements-install-them-via-your-package-manager-1)
-      * [Install options:](#install-options-2)
-        * [Use pipx](#use-pipx-2)
-        * [Clone repo and use venv](#clone-repo-and-use-venv-2)
   * [📃 Credits](#-credits)
-<!-- TOC -->
 
 ## 🛣️ Usage plan
 1. Check [Table of Contents](#-table-of-contents) (optionally)
