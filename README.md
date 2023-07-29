@@ -28,7 +28,7 @@ websockets server, that broadcasts and handles messages.
 
 ## 💻 Usage
 To use dragonion-server, you need to install it first. To do this, you can visit
-[Configuration guide](#-configuration-guide).
+[Configuration guide](#%EF%B8%8F-configuration-guide).
 
 dragonion-server is controlled from cli. When you run it in some location on your
 disk, `data` folder with tor and `data.storage` config file are created. You should
