@@ -8,14 +8,14 @@ Websocket chat server on-top of onion network for
   * [🛣️ Usage plan](#%EF%B8%8F-usage-plan)
   * [🔖️ About](#%EF%B8%8F-about)
   * [💻 Usage](#-usage)
-  * [⚙️ Configuration guide](#-configuration-guide)
+  * [⚙️ Configuration guide](#%EF%B8%8F-configuration-guide)
   * [📃 Credits](#-credits)
 
 ## 🛣️ Usage plan
 1. Check [Table of Contents](#-table-of-contents) (optionally)
-2. Read [About](#-about) (optionally)
+2. Read [About](#%EF%B8%8F-about) (optionally)
 3. Read [Usage guide](#-usage)
-4. Go to [Configuration guide](#-configuration-guide), choose your platform,
+4. Go to [Configuration guide](#%EF%B8%8F-configuration-guide), choose your platform,
 navigate to opted installation method (they are arranged from most to least 
 recommended)
 5. Install pre-requirements, install app, run it, 
