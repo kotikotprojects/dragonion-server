@@ -9,7 +9,11 @@ Websocket chat server on-top of onion network for
   * [🛣️ Usage plan](#-usage-plan)
   * [🔖️ About](#-about)
   * [💻 Usage](#-usage)
-        * [Getting help](#getting-help)
+      * [Guide sections:](#guide-sections)
+      * [Getting help](#getting-help)
+      * [Running a service](#running-a-service)
+      * [Updating a service](#updating-a-service)
+      * [Removing a service](#removing-a-service)
   * [⚙️ Configuration guide](#-configuration-guide)
     * [Windows](#windows)
       * [Pre-requirements:](#pre-requirements)
@@ -53,12 +57,12 @@ disk, `data` folder with tor and `data.storage` config file are created. You sho
 keep them safe to avoid data and key leaks. Using `data.storage` file anyone can
 start server on your onion service id.
 
-##### Guide sections:
+#### Guide sections:
 - [Getting help](#getting-help)
 - [Running a service](#running-a-service)
 - [Updating a service](#updating-a-service)
 
-##### Getting help
+#### Getting help
 To check all available commands, you can run
 ```commandline
 dragonion-server --help
@@ -72,7 +76,7 @@ where `command-name` is name of existing command, for example
 dragonion-server service-run --help
 ```
 
-##### Running a service
+#### Running a service
 To use dragonion chat, you need to run onion service with dragonion-server. 
 In this situation, service is an onion service, an anonymous network service 
 that is exposed over the Tor network. dragonion-server runs service, that
@@ -103,7 +107,7 @@ convenient for some users as connect option, so you should share it also.
 
 [Backs to sections](#guide-sections)
 
-##### Updating a service
+#### Updating a service
 You may have a situation where you need to update or write a service without 
 actually starting it. In such cases, you can use the command provided below. 
 It allows you to generate an id-key pair for a new name and overwrite the port 
@@ -121,7 +125,7 @@ Available command options:
 
 [Backs to sections](#guide-sections)
 
-##### Removing a service
+#### Removing a service
 In some situations, you may need to remove the service. In this case, you will no 
 longer be able to run the server on the same id due to the nature of the tor 
 network, so be careful with this. Also, do not forget that the loss of the 
