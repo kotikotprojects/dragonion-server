@@ -39,6 +39,7 @@ start server on your onion service id.
 - [Getting help](#getting-help)
 - [Running a service](#running-a-service)
 - [Updating a service](#updating-a-service)
+- [Removing a service](#removing-a-service)
 
 #### Getting help
 To check all available commands, you can run
