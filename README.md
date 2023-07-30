@@ -30,6 +30,11 @@ websockets server, that broadcasts and handles messages.
 To use dragonion-server, you need to install it first. To do this, you can visit
 [[Configuration guide](#%EF%B8%8F-configuration-guide)].
 
+You can talk with this repo using collectivai chat. 
+[[Visit this page](https://chat.collectivai.com/dragonionx/dragonion-server)] and 
+discuss your questions. AI will respond with up-to-date information using the data 
+of this repository.
+
 dragonion-server is controlled from cli. When you run it in some location on your
 disk, `data` folder with tor and `data.storage` config file are created. You should
 keep them safe to avoid data and key leaks. Using `data.storage` file anyone can
@@ -122,6 +127,10 @@ Available command options:
 - `-n` or `--name` is required and used to specify service name to remove.
 
 [[Back to sections](#guide-sections)]
+
+Remember, if you still have questions about the operation of the server, you can 
+[[discuss them with AI](https://chat.collectivai.com/dragonionx/dragonion-server)] 
+or create an issue.
 
 ## ⚙️ Configuration guide
 - [Windows](#windows)
