@@ -12,14 +12,14 @@ Websocket chat server on-top of onion network for
   * [📃 Credits](#-credits)
 
 ## 🛣️ Usage plan
-1. Check [Table of Contents](#-table-of-contents) (optionally)
-2. Read [About](#%EF%B8%8F-about) (optionally)
-3. Read [Usage guide](#-usage)
-4. Go to [Configuration guide](#%EF%B8%8F-configuration-guide), choose your platform,
+1. Check [[Table of Contents](#-table-of-contents)] (optionally)
+2. Read [[About](#%EF%B8%8F-about)] (optionally)
+3. Read [[Usage guide](#-usage)]
+4. Go to [[Configuration guide](#%EF%B8%8F-configuration-guide)], choose your platform,
 navigate to opted installation method (they are arranged from most to least 
 recommended)
 5. Install pre-requirements, install app, run it, 
-checking [usage guide](#-usage) if needed
+checking [[usage guide](#-usage)] if needed
 
 ## 🔖️ About
 A configured and running dragonion-server is required for dragonion chat to work. 
@@ -28,7 +28,7 @@ websockets server, that broadcasts and handles messages.
 
 ## 💻 Usage
 To use dragonion-server, you need to install it first. To do this, you can visit
-[Configuration guide](#%EF%B8%8F-configuration-guide).
+[[Configuration guide](#%EF%B8%8F-configuration-guide)].
 
 dragonion-server is controlled from cli. When you run it in some location on your
 disk, `data` folder with tor and `data.storage` config file are created. You should
@@ -84,7 +84,7 @@ strings (orange and purple), that are service id and auth string, to your users.
 Also, sharing `SERVICE_NAME.auth` file, that is created in working dir can be more
 convenient for some users as connect option, so you should share it also.
 
-[Backs to sections](#guide-sections)
+[[Back to sections](#guide-sections)]
 
 #### Updating a service
 You may have a situation where you need to update or write a service without 
@@ -102,7 +102,7 @@ Available command options:
 - `-n` or `--name` is required and used to specify service name to write.
 - `-p` or `--port` is required here and will rewrite port in settings.
 
-[Backs to sections](#guide-sections)
+[[Back to sections](#guide-sections)]
 
 #### Removing a service
 In some situations, you may need to remove the service. In this case, you will no 
@@ -121,7 +121,7 @@ Available command options:
 
 - `-n` or `--name` is required and used to specify service name to remove.
 
-[Backs to sections](#guide-sections)
+[[Back to sections](#guide-sections)]
 
 ## ⚙️ Configuration guide
 - [Windows](#windows)
@@ -130,10 +130,10 @@ Available command options:
 
 ### Windows
 #### Pre-requirements:
-- [Python3](https://www.python.org/downloads/) (with pip)
-- [Git](https://git-scm.com/download/win)
-- [Windows terminal](https://github.com/microsoft/terminal) is recommended, 
-[install it from Microsoft Store](https://aka.ms/terminal)
+- [[Python3](https://www.python.org/downloads/)] (with pip)
+- [[Git](https://git-scm.com/download/win)]
+- [[Windows terminal](https://github.com/microsoft/terminal)] is recommended, 
+[[install it from Microsoft Store](https://aka.ms/terminal)]
 
 #### Install options:
 - [Use pipx](#use-pipx)
@@ -159,7 +159,7 @@ Updating:
 pipx upgrade dragonion-server
 ```
 
-[Back to Usage guide](#-usage)
+[[Back to Usage guide](#-usage)]
 
 ##### Clone repo and use venv
 Fresh installation:
@@ -190,7 +190,7 @@ venv\Scripts\activate
 pip install .
 ```
 
-[Back to Usage guide](#-usage)
+[[Back to Usage guide](#-usage)]
 
 ### Linux
 #### Pre-requirements (install them via your package manager):
@@ -236,7 +236,7 @@ Updating:
 pipx upgrade dragonion-server
 ```
 
-[Back to Usage guide](#-usage)
+[[Back to Usage guide](#-usage)]
 
 ##### Clone repo and use venv
 Fresh installation:
@@ -267,7 +267,7 @@ If there are new changes, run
 pip install .
 ```
 
-[Back to Usage guide](#-usage)
+[[Back to Usage guide](#-usage)]
 
 
 ### MacOS
@@ -309,7 +309,7 @@ Updating:
 pipx upgrade dragonion-server
 ```
 
-[Back to Usage guide](#-usage)
+[[Back to Usage guide](#-usage)]
 
 ##### Clone repo and use venv
 Fresh installation:
@@ -340,9 +340,9 @@ If there are new changes, run
 pip install .
 ```
 
-[Back to Usage guide](#-usage)
+[[Back to Usage guide](#-usage)]
 
 
 ## 📃 Credits
-- [OnionShare project](https://github.com/onionshare) - code inspiration for 
+- [[OnionShare project](https://github.com/onionshare)] - code inspiration for 
 integrating application with tor
