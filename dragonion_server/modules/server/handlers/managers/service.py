@@ -1,10 +1,9 @@
-from .connection import Connection
-from .room import Room
 from typing import Dict
 
-from dragonion_core.proto.web.webmessage import (
-    webmessage_error_message_literal
-)
+from dragonion_core.proto.web.webmessage import webmessage_error_message_literal
+
+from .connection import Connection
+from .room import Room
 
 
 class Service(object):
@@ -21,10 +20,7 @@ class Service(object):
         for room in self.rooms.values():
             await room.broadcast_notification(message)
 
-    async def broadcast_error(
-            self,
-            error_message: webmessage_error_message_literal
-    ):
+    async def broadcast_error(self, error_message: webmessage_error_message_literal):
         for room in self.rooms.values():
             await room.broadcast_error(error_message)
 
@@ -32,31 +28,31 @@ class Service(object):
         """
         Searches for room by valid connection object in it
         :param connection: Connection in unknown room to search
-        :return: 
+        :return:
         """
         for room in self.rooms.values():
             if connection in room.connections.values():
                 return room
 
     async def get_connection_by_attribute(
-            self, attribute: str, value: str
+        self, attribute: str, value: str
     ) -> Connection:
         """
         Gets connection in some room by attribute and value in it
-        :param attribute: 
-        :param value: 
-        :return: 
+        :param attribute:
+        :param value:
+        :return:
         """
         for room in self.rooms.values():
             if connection := await room.get_connection_by(attribute, value):
                 return connection
 
-    async def close_room(self, room_name: str, reason: str = 'Unknown reason'):
+    async def close_room(self, room_name: str, reason: str = "Unknown reason"):
         """
         Closes all connections in room
         :param room_name: Close name
         :param reason: Reason to close room, default is Unknown reason
-        :return: 
+        :return:
         """
         room = self.rooms.get(room_name)
         if room is None:
@@ -64,6 +60,5 @@ class Service(object):
 
         for connection in room.connections.values():
             await room.disconnect(
-                connection=connection,
-                close_reason=f'Room is closed: {reason}'
+                connection=connection, close_reason=f"Room is closed: {reason}"
             )

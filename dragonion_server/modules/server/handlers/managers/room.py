@@ -1,25 +1,24 @@
-from attrs import define
-from .connection import Connection
-from .exceptions import GotInvalidWebmessage
+from datetime import datetime
+from json.decoder import JSONDecodeError
 from typing import Dict
+
+from attrs import define
+from dragonion_core.proto.web.webmessage import (
+    WebBroadcastableMessage,
+    WebConnectionMessage,
+    WebConnectionResultMessage,
+    WebDisconnectMessage,
+    WebErrorMessage,
+    WebMessageMessage,
+    WebNotificationMessage,
+    set_time,
+    webmessage_error_message_literal,
+    webmessages_union,
+)
 from fastapi import WebSocket
 
-from json.decoder import JSONDecodeError
-
-from dragonion_core.proto.web.webmessage import (
-    webmessages_union,
-    set_time,
-    WebMessageMessage,
-    WebBroadcastableMessage,
-    WebNotificationMessage,
-    webmessage_error_message_literal,
-    WebErrorMessage,
-    WebConnectionMessage,
-    WebDisconnectMessage,
-    WebConnectionResultMessage
-)
-
-from datetime import datetime
+from .connection import Connection
+from .exceptions import GotInvalidWebmessage
 
 
 @define
@@ -28,62 +27,65 @@ class Room(object):
 
     async def accept_connection(self, ws: WebSocket) -> Connection | None:
         """
-        Accepts connection, checks username availability and adds it to dict of 
-        connections 
-        :param ws: Websocket of connection 
-        :return: 
+        Accepts connection, checks username availability and adds it to dict of
+        connections
+        :param ws: Websocket of connection
+        :return:
         """
-        print('Incoming connection')
+        print("Incoming connection")
         await ws.accept()
         try:
-            connection_message = WebConnectionMessage.from_json(
-                await ws.receive_text()
-            )
+            connection_message = WebConnectionMessage.from_json(await ws.receive_text())
         except JSONDecodeError:
-            await ws.send_text(set_time(WebErrorMessage(
-                'invalid_webmessage'
-            )).to_json())
-            await ws.close(reason='invalid_webmessage')
-            return 
-        
+            await ws.send_text(
+                set_time(WebErrorMessage("invalid_webmessage")).to_json()
+            )
+            await ws.close(reason="invalid_webmessage")
+            return
+
         connection = Connection(
             username=connection_message.username,
             ws=ws,
             public_key=connection_message.public_key,
-            password=connection_message.password
+            password=connection_message.password,
         )
-        
+
         if connection_message.username in self.connections.keys():
-            await connection.send_error(
-                'username_exists'
-            )
-            await ws.close(reason='username_exists')
-            return 
+            await connection.send_error("username_exists")
+            await ws.close(reason="username_exists")
+            return
 
         self.connections[connection_message.username] = connection
-        await connection.send_webmessage(WebConnectionResultMessage(
-            connected_users=dict(
-                map(
-                    lambda i, j: (i, j),
-                    [_username for _username in list(self.connections.keys())
-                     if self.connections[_username].password ==
-                     connection_message.password],
-                    [_connection.public_key for _connection 
-                     in self.connections.values() if _connection.password ==
-                     connection_message.password]
+        await connection.send_webmessage(
+            WebConnectionResultMessage(
+                connected_users=dict(
+                    map(
+                        lambda i, j: (i, j),
+                        [
+                            _username
+                            for _username in list(self.connections.keys())
+                            if self.connections[_username].password
+                            == connection_message.password
+                        ],
+                        [
+                            _connection.public_key
+                            for _connection in self.connections.values()
+                            if _connection.password == connection_message.password
+                        ],
+                    )
                 )
             )
-        ))
+        )
 
         await self.broadcast_webmessage(connection_message)
-        print(f'[{datetime.now().time()}] Accepted {connection_message.username}')
+        print(f"[{datetime.now().time()}] Accepted {connection_message.username}")
         return connection
 
     async def broadcast_webmessage(self, obj: webmessages_union):
         """
         Broadcasts WebMessages to all connections in room
-        :param obj:  
-        :return: 
+        :param obj:
+        :return:
         """
         for connection in self.connections.values():
             await connection.send_webmessage(obj)
@@ -91,11 +93,11 @@ class Room(object):
     async def broadcast_message(self, broadcastable: WebBroadcastableMessage):
         """
         Broadcasts message to every user in room
-        :param broadcastable: String object with json representation of 
+        :param broadcastable: String object with json representation of
                                    WebBroadcastableMessage
-        :return: 
+        :return:
         """
-        try: 
+        try:
             for to_username in broadcastable.messages.keys():
                 try:
                     await self.connections[to_username].send_webmessage(
@@ -110,28 +112,17 @@ class Room(object):
         """
         Broadcasts notification from server
         :param message: Content
-        :return: 
+        :return:
         """
-        await self.broadcast_webmessage(
-            WebNotificationMessage(
-                message=message
-            )
-        )
+        await self.broadcast_webmessage(WebNotificationMessage(message=message))
 
-    async def broadcast_error(
-            self,
-            error_message: webmessage_error_message_literal
-    ):
+    async def broadcast_error(self, error_message: webmessage_error_message_literal):
         """
         Broadcasts server error
         :param error_message: See webmessage_error_message_literal
-        :return: 
+        :return:
         """
-        await self.broadcast_webmessage(
-            WebErrorMessage(
-                error_message=error_message
-            )
-        )
+        await self.broadcast_webmessage(WebErrorMessage(error_message=error_message))
 
     async def broadcast_user_disconnected(self, username: str):
         """
@@ -139,18 +130,14 @@ class Room(object):
         :param username: Username of user that disconnected
         :return:
         """
-        await self.broadcast_webmessage(
-            WebDisconnectMessage(
-                username=username
-            )
-        )
+        await self.broadcast_webmessage(WebDisconnectMessage(username=username))
 
     async def get_connection_by(self, attribute: str, value: str) -> Connection | None:
         """
         Search for connection by attribute and value in it
-        :param attribute: 
-        :param value: 
-        :return: 
+        :param attribute:
+        :param value:
+        :return:
         """
         for connection in self.connections.values():
             if getattr(connection, attribute) == value:
@@ -158,11 +145,11 @@ class Room(object):
 
     async def disconnect(self, connection: Connection, close_reason: str | None = None):
         """
-        Disconnects by connection object. 
-        :param connection: Object of connection. 
+        Disconnects by connection object.
+        :param connection: Object of connection.
                            It can be obtained using get_connection_by
         :param close_reason: Reason if exists
-        :return: 
+        :return:
         """
         if connection not in self.connections.values():
             return
@@ -170,9 +157,7 @@ class Room(object):
         del self.connections[connection.username]
 
         try:
-            await connection.ws.close(
-                reason=close_reason
-            )
+            await connection.ws.close(reason=close_reason)
         except Exception as e:
             assert e
 

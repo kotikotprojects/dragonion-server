@@ -13,5 +13,5 @@ class ServiceModel:
     client_auth_pub_key: str
 
     service_id: str = None
-    key_content: str = 'ED25519-V3'
-    key_type: str = 'NEW'
+    key_content: str = "ED25519-V3"
+    key_type: str = "NEW"

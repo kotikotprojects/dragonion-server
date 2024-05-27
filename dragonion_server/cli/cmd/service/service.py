@@ -1,14 +1,13 @@
 from ...utils import ModuleGroup
-from .write import ServiceWriteCommand
-from .run import ServiceRunCommand
 from .remove import ServiceRemoveCommand
-
+from .run import ServiceRunCommand
+from .write import ServiceWriteCommand
 
 service_group = ModuleGroup(
-    name='service',
+    name="service",
     commands={
-        'write': ServiceWriteCommand(),
-        'run': ServiceRunCommand(),
-        'remove': ServiceRemoveCommand()
-    }
+        "write": ServiceWriteCommand(),
+        "run": ServiceRunCommand(),
+        "remove": ServiceRemoveCommand(),
+    },
 )

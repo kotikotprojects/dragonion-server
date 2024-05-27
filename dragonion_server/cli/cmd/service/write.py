@@ -1,30 +1,30 @@
 import click
 
-from dragonion_server.utils.onion import Onion
 from dragonion_server.common import console
+from dragonion_server.utils.onion import Onion
 
 
 class ServiceWriteCommand(click.Command):
     def __init__(self):
         super().__init__(
-            name='write',
+            name="write",
             callback=self.callback,
             params=[
                 click.Option(
-                    ('--name', '-n'),
+                    ("--name", "-n"),
                     required=True,
                     prompt=True,
                     type=str,
-                    help='Name of service to write to'
+                    help="Name of service to write to",
                 ),
                 click.Option(
-                    ('--port', '-p'),
+                    ("--port", "-p"),
                     required=True,
                     prompt=True,
                     type=int,
-                    help='Port to start service on'
-                )
-            ]
+                    help="Port to start service on",
+                ),
+            ],
         )
 
     @staticmethod

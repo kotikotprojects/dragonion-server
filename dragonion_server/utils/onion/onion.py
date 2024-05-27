@@ -1,23 +1,23 @@
-from stem.control import Controller
-from .stem_process import launch_tor_with_config
-from stem import ProtocolError
-
-import socket
-import random
+import base64
 import os
-import psutil
+import platform
+import random
+import socket
 import subprocess
 import tempfile
-import platform
 import time
-import base64
+
 import nacl.public
-
+import psutil
 from rich import print
+from stem import ProtocolError
+from stem.control import Controller
 
-from dragonion_server.utils.core import dirs
 from dragonion_server.utils import config
 from dragonion_server.utils.config.db import services
+from dragonion_server.utils.core import dirs
+
+from .stem_process import launch_tor_with_config
 
 
 def get_available_port(min_port: int = 1000, max_port: int = 65535):
@@ -61,9 +61,9 @@ class Onion(object):
             try:
                 cmdline = proc.cmdline()
                 if (
-                        cmdline[0] == self.tor_path
-                        and cmdline[1] == "-f"
-                        and cmdline[2] == self.tor_torrc
+                    cmdline[0] == self.tor_path
+                    and cmdline[1] == "-f"
+                    and cmdline[2] == self.tor_torrc
                 ):
                     proc.terminate()
                     proc.wait()
@@ -82,18 +82,18 @@ class Onion(object):
         self.kill_same_tor()
 
         tor_config = {
-            'DataDirectory': tor_data_directory_name,
-            'SocksPort': str(self.tor_socks_port),
-            'CookieAuthentication': '1',
-            'CookieAuthFile': self.tor_cookie_auth_file,
-            'AvoidDiskWrites': '1',
-            'Log': [
-                'NOTICE stdout'
-            ]
+            "DataDirectory": tor_data_directory_name,
+            "SocksPort": str(self.tor_socks_port),
+            "CookieAuthentication": "1",
+            "CookieAuthFile": self.tor_cookie_auth_file,
+            "AvoidDiskWrites": "1",
+            "Log": ["NOTICE stdout"],
         }
 
-        if platform.system() in ["Windows", "Darwin"] or \
-                len(tor_data_directory_name) > 90:
+        if (
+            platform.system() in ["Windows", "Darwin"]
+            or len(tor_data_directory_name) > 90
+        ):
             try:
                 self.tor_control_port = get_available_port(1000, 65535)
                 tor_config = tor_config | {"ControlPort": str(self.tor_control_port)}
@@ -102,24 +102,22 @@ class Onion(object):
             self.tor_control_socket = None
         else:
             self.tor_control_port = None
-            self.tor_control_socket = os.path.abspath(os.path.join(
-                tor_data_directory_name, "control_socket"
-            ))
+            self.tor_control_socket = os.path.abspath(
+                os.path.join(tor_data_directory_name, "control_socket")
+            )
             tor_config = tor_config | {"ControlSocket": str(self.tor_control_socket)}
 
         return tor_config
-    
+
     def connect(self):
-        self.tor_data_directory = tempfile.TemporaryDirectory(
-            dir=dirs.build_tmp_dir()
-        )
+        self.tor_data_directory = tempfile.TemporaryDirectory(dir=dirs.build_tmp_dir())
         self.tor_data_directory_name = self.tor_data_directory.name
 
         self.tor_proc = launch_tor_with_config(
             config=self.get_config(self.tor_data_directory_name),
             tor_cmd=self.tor_path,
             take_ownership=True,
-            init_msg_handler=print
+            init_msg_handler=print,
         )
 
         time.sleep(2)
@@ -149,14 +147,12 @@ class Onion(object):
 
         client_auth_priv_key_raw = nacl.public.PrivateKey.generate()
         client_auth_priv_key = key_str(client_auth_priv_key_raw)
-        client_auth_pub_key = key_str(
-            client_auth_priv_key_raw.public_key
-        )
+        client_auth_pub_key = key_str(client_auth_priv_key_raw.public_key)
 
         services[name] = config.models.ServiceModel(
             port=port,
             client_auth_priv_key=client_auth_priv_key,
-            client_auth_pub_key=client_auth_pub_key
+            client_auth_pub_key=client_auth_pub_key,
         )
         return services[name]
 
@@ -167,7 +163,7 @@ class Onion(object):
         :return: .onion url
         """
         if name not in services.keys():
-            raise 'Service not created'
+            raise "Service not created"
 
         service: config.models.ServiceModel = services[name]
 
@@ -193,8 +189,9 @@ class Onion(object):
             service.key_type = "ED25519-V3"
             service.key_content = res.private_key
 
-        self.auth_string = f'{res.service_id}:descriptor:' \
-                           f'x25519:{service.client_auth_priv_key}'
+        self.auth_string = (
+            f"{res.service_id}:descriptor:" f"x25519:{service.client_auth_priv_key}"
+        )
 
         services[name] = service
 
@@ -204,9 +201,7 @@ class Onion(object):
         service: config.models.ServiceModel = services[name]
         if service.service_id:
             try:
-                self.c.remove_ephemeral_hidden_service(
-                    service.service_id
-                )
+                self.c.remove_ephemeral_hidden_service(service.service_id)
             except Exception as e:
                 print(e)
 
@@ -222,8 +217,8 @@ class Onion(object):
                 rendezvous_circuit_ids = []
                 for c in self.c.get_circuits():
                     if (
-                            c.purpose == "HS_SERVICE_REND"
-                            and c.rend_query in self.graceful_close_onions
+                        c.purpose == "HS_SERVICE_REND"
+                        and c.rend_query in self.graceful_close_onions
                     ):
                         rendezvous_circuit_ids.append(c.id)
 
@@ -237,9 +232,7 @@ class Onion(object):
                             num_rend_circuits += 1
 
                     if num_rend_circuits == 0:
-                        print(
-                            "\rTor rendezvous circuits have closed" + " " * 20
-                        )
+                        print("\rTor rendezvous circuits have closed" + " " * 20)
                         break
 
                     if num_rend_circuits == 1:
@@ -271,7 +264,7 @@ class Onion(object):
         try:
             self.tor_data_directory.cleanup()
         except Exception as e:
-            print(f'Cannot cleanup temporary directory: {e}')
+            print(f"Cannot cleanup temporary directory: {e}")
 
     @property
     def get_tor_socks_port(self):

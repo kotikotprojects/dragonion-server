@@ -5,28 +5,33 @@ import sys
 
 
 def get_resource_path(filename):
-    application_path = 'resources'
+    application_path = "resources"
 
     return os.path.join(application_path, filename)
 
 
 def get_tor_paths():
-    if (platform.system() != "Darwin" and 
-            platform.machine().lower() in ['aarch64', 'arm64']):
-        if shutil.which('tor'):
-            return 'tor'
+    if platform.system() != "Darwin" and platform.machine().lower() in [
+        "aarch64",
+        "arm64",
+    ]:
+        if shutil.which("tor"):
+            return "tor"
         else:
-            print('Detected ARM system and tor is not installed or added to PATH. '
-                  'Please, consider reading documentation and installing application '
-                  'properly')
+            print(
+                "Detected ARM system and tor is not installed or added to PATH. "
+                "Please, consider reading documentation and installing application "
+                "properly"
+            )
             sys.exit(1)
-            
+
     else:
         from ..onion.tor_downloader import download_tor
+
         if platform.system() in ["Linux", "Darwin"]:
-            tor_path = os.path.join(build_data_dir(), 'tor/tor')
+            tor_path = os.path.join(build_data_dir(), "tor/tor")
         elif platform.system() == "Windows":
-            tor_path = os.path.join(build_data_dir(), 'tor/tor.exe')
+            tor_path = os.path.join(build_data_dir(), "tor/tor.exe")
         else:
             raise Exception("Platform not supported")
 
@@ -37,7 +42,7 @@ def get_tor_paths():
 
 
 def build_data_dir():
-    dragonion_data_dir = 'data'
+    dragonion_data_dir = "data"
 
     os.makedirs(dragonion_data_dir, exist_ok=True)
     return dragonion_data_dir

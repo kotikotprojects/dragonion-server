@@ -1,5 +1,6 @@
-import click
 import typing as t
+
+import click
 
 
 class ModuleGroup(click.Group):
@@ -13,6 +14,6 @@ class ModuleGroup(click.Group):
     ) -> None:
         new_commands = dict()
         for command_key in commands.keys():
-            new_commands[f'{name}-{command_key}'] = commands[command_key]
-            
+            new_commands[f"{name}-{command_key}"] = commands[command_key]
+
         super().__init__(name, new_commands, **attrs)

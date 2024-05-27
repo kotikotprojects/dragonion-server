@@ -1,12 +1,10 @@
-from fastapi import WebSocket, WebSocketDisconnect
-from .managers.service import Service
-from dragonion_core.proto.web.webmessage import (
-    webmessages_union,
-    WebMessage
-)
-from .managers.exceptions import GotInvalidWebmessage
-
 from datetime import datetime
+
+from dragonion_core.proto.web.webmessage import WebMessage, webmessages_union
+from fastapi import WebSocket, WebSocketDisconnect
+
+from .managers.exceptions import GotInvalidWebmessage
+from .managers.service import Service
 
 service = Service()
 

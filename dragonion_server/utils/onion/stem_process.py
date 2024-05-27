@@ -15,13 +15,21 @@ import stem.util.str_tools
 import stem.util.system
 import stem.version
 
-NO_TORRC = '<no torrc>'
+NO_TORRC = "<no torrc>"
 DEFAULT_INIT_TIMEOUT = 90
 
 
-def launch_tor(tor_cmd='tor', args=None, torrc_path=None, completion_percent=100,
-               init_msg_handler=None, timeout=DEFAULT_INIT_TIMEOUT,
-               take_ownership=False, close_output=True, stdin=None):
+def launch_tor(
+    tor_cmd="tor",
+    args=None,
+    torrc_path=None,
+    completion_percent=100,
+    init_msg_handler=None,
+    timeout=DEFAULT_INIT_TIMEOUT,
+    take_ownership=False,
+    close_output=True,
+    stdin=None,
+):
     """
     Initializes a tor process. This blocks until initialization completes or we
     error out.
@@ -68,13 +76,14 @@ def launch_tor(tor_cmd='tor', args=None, torrc_path=None, completion_percent=100
 
     if stem.util.system.is_windows():
         if timeout is not None and timeout != DEFAULT_INIT_TIMEOUT:
-            raise OSError('You cannot launch tor with a timeout on Windows')
+            raise OSError("You cannot launch tor with a timeout on Windows")
 
         timeout = None
-    elif threading.current_thread().__class__.__name__ != '_MainThread':
+    elif threading.current_thread().__class__.__name__ != "_MainThread":
         if timeout is not None and timeout != DEFAULT_INIT_TIMEOUT:
             raise OSError(
-                'Launching tor with a timeout can only be done in the main thread')
+                "Launching tor with a timeout can only be done in the main thread"
+            )
 
         timeout = None
 
@@ -88,8 +97,10 @@ def launch_tor(tor_cmd='tor', args=None, torrc_path=None, completion_percent=100
         elif not os.path.isfile(tor_cmd):
             raise OSError("'%s' doesn't exist" % tor_cmd)
     elif not stem.util.system.is_available(tor_cmd):
-        raise OSError(f"{tor_cmd} isn't available on your system. "
-                      f"Maybe it's not in your PATH?")
+        raise OSError(
+            f"{tor_cmd} isn't available on your system. "
+            f"Maybe it's not in your PATH?"
+        )
 
     # double check that we have a torrc to work with
     if torrc_path not in (None, NO_TORRC) and not os.path.exists(torrc_path):
@@ -103,13 +114,13 @@ def launch_tor(tor_cmd='tor', args=None, torrc_path=None, completion_percent=100
 
     if torrc_path:
         if torrc_path == NO_TORRC:
-            temp_file = tempfile.mkstemp(prefix='empty-torrc-', text=True)[1]
-            runtime_args += ['-f', temp_file]
+            temp_file = tempfile.mkstemp(prefix="empty-torrc-", text=True)[1]
+            runtime_args += ["-f", temp_file]
         else:
-            runtime_args += ['-f', torrc_path]
+            runtime_args += ["-f", torrc_path]
 
     if take_ownership:
-        runtime_args += ['__OwningControllerProcess', str(os.getpid())]
+        runtime_args += ["__OwningControllerProcess", str(os.getpid())]
 
     tor_process = None
 
@@ -119,8 +130,9 @@ def launch_tor(tor_cmd='tor', args=None, torrc_path=None, completion_percent=100
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            env=None if platform.system() == 'Windows' else
-            {"LD_LIBRARY_PATH": os.path.dirname(tor_cmd)}
+            env=None
+            if platform.system() == "Windows"
+            else {"LD_LIBRARY_PATH": os.path.dirname(tor_cmd)},
         )
 
         if stdin:
@@ -129,15 +141,16 @@ def launch_tor(tor_cmd='tor', args=None, torrc_path=None, completion_percent=100
             tor_process.stdin.close()
 
         if timeout:
+
             def timeout_handler(*_):
-                raise OSError('reached a %i second timeout without success' % timeout)
+                raise OSError("reached a %i second timeout without success" % timeout)
 
             signal.signal(signal.SIGALRM, timeout_handler)
             signal.setitimer(signal.ITIMER_REAL, timeout)
 
-        bootstrap_line = re.compile('Bootstrapped ([0-9]+)%')
-        problem_line = re.compile('\\[(warn|err)] (.*)$')
-        last_problem = 'Timed out'
+        bootstrap_line = re.compile("Bootstrapped ([0-9]+)%")
+        problem_line = re.compile("\\[(warn|err)] (.*)$")
+        last_problem = "Timed out"
 
         while True:
             # Tor's stdout will be read as ASCII bytes. This is fine for python 2, but
@@ -147,12 +160,12 @@ def launch_tor(tor_cmd='tor', args=None, torrc_path=None, completion_percent=100
             # It seems like python 2.x is perfectly happy for this to be unicode, so
             # normalizing to that.
 
-            init_line = tor_process.stdout.readline().decode('utf-8', 'replace').strip()
+            init_line = tor_process.stdout.readline().decode("utf-8", "replace").strip()
 
             # this will provide empty results if the process is terminated
 
             if not init_line:
-                raise OSError('Process terminated: %s' % last_problem)
+                raise OSError("Process terminated: %s" % last_problem)
 
             # provide the caller with the initialization message if they want it
 
@@ -169,9 +182,9 @@ def launch_tor(tor_cmd='tor', args=None, torrc_path=None, completion_percent=100
             elif problem_match:
                 runlevel, msg = problem_match.groups()
 
-                if 'see warnings above' not in msg:
-                    if ': ' in msg:
-                        msg = msg.split(': ')[-1].strip()
+                if "see warnings above" not in msg:
+                    if ": " in msg:
+                        msg = msg.split(": ")[-1].strip()
 
                     last_problem = msg
     except Exception as e:
@@ -199,9 +212,15 @@ def launch_tor(tor_cmd='tor', args=None, torrc_path=None, completion_percent=100
                 assert e
 
 
-def launch_tor_with_config(config, tor_cmd='tor', completion_percent=100,
-                           init_msg_handler=None, timeout=DEFAULT_INIT_TIMEOUT,
-                           take_ownership=False, close_output=True):
+def launch_tor_with_config(
+    config,
+    tor_cmd="tor",
+    completion_percent=100,
+    init_msg_handler=None,
+    timeout=DEFAULT_INIT_TIMEOUT,
+    take_ownership=False,
+    close_output=True,
+):
     """
     Initializes a tor process, like :func:`~stem.process.launch_tor`, but with a
     customized configuration. This writes a temporary torrc to disk, launches
@@ -246,62 +265,71 @@ def launch_tor_with_config(config, tor_cmd='tor', completion_percent=100,
     """
 
     try:
-        use_stdin = stem.version.get_system_tor_version(
-            tor_cmd) >= stem.version.Requirement.TORRC_VIA_STDIN
+        use_stdin = (
+            stem.version.get_system_tor_version(tor_cmd)
+            >= stem.version.Requirement.TORRC_VIA_STDIN
+        )
     except IOError:
         use_stdin = False
 
     # we need to be sure that we're logging to stdout to figure out when we're
     # done bootstrapping
 
-    if 'Log' in config:
-        stdout_options = ['DEBUG stdout', 'INFO stdout', 'NOTICE stdout']
+    if "Log" in config:
+        stdout_options = ["DEBUG stdout", "INFO stdout", "NOTICE stdout"]
 
-        if isinstance(config['Log'], str):
-            config['Log'] = [config['Log']]
+        if isinstance(config["Log"], str):
+            config["Log"] = [config["Log"]]
 
         has_stdout = False
 
-        for log_config in config['Log']:
+        for log_config in config["Log"]:
             if log_config in stdout_options:
                 has_stdout = True
                 break
 
         if not has_stdout:
-            config['Log'].append('NOTICE stdout')
+            config["Log"].append("NOTICE stdout")
 
-    config_str = ''
+    config_str = ""
 
     for key, values in list(config.items()):
         if isinstance(values, str):
-            config_str += '%s %s\n' % (key, values)
+            config_str += "%s %s\n" % (key, values)
         else:
             for value in values:
-                config_str += '%s %s\n' % (key, value)
+                config_str += "%s %s\n" % (key, value)
 
     if use_stdin:
         return launch_tor(
             tor_cmd=tor_cmd,
-            args=['-f', '-'],
+            args=["-f", "-"],
             completion_percent=completion_percent,
             init_msg_handler=init_msg_handler,
             timeout=timeout,
             take_ownership=take_ownership,
             close_output=close_output,
-            stdin=config_str
+            stdin=config_str,
         )
     else:
-        torrc_descriptor, torrc_path = tempfile.mkstemp(prefix='torrc-', text=True)
+        torrc_descriptor, torrc_path = tempfile.mkstemp(prefix="torrc-", text=True)
 
         try:
-            with open(torrc_path, 'w') as torrc_file:
+            with open(torrc_path, "w") as torrc_file:
                 torrc_file.write(config_str)
 
             # prevents tor from error-ing out due to a missing torrc if it gets a sighup
-            args = ['__ReloadTorrcOnSIGHUP', '0']
+            args = ["__ReloadTorrcOnSIGHUP", "0"]
 
-            return launch_tor(tor_cmd, args, torrc_path, completion_percent,
-                              init_msg_handler, timeout, take_ownership)
+            return launch_tor(
+                tor_cmd,
+                args,
+                torrc_path,
+                completion_percent,
+                init_msg_handler,
+                timeout,
+                take_ownership,
+            )
         finally:
             try:
                 os.close(torrc_descriptor)

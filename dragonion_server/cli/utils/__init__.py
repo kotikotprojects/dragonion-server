@@ -1,6 +1,3 @@
 from .groups import ModuleGroup
 
-
-__all__ = [
-    'ModuleGroup'
-]
+__all__ = ["ModuleGroup"]
