@@ -1,6 +1,6 @@
 # 🐲 dragonion-server
 Websocket chat server on-top of onion network for 
-[dragonion](https://github.com/dragonionx/dragonion)
+[dragonion](https://github.com/kotikotprojects/dragonion)
 
 ## 📜 Table of Contents
 * [🐲 dragonion-server](#-dragonion-server)
@@ -156,7 +156,7 @@ Fresh installation:
 ```
 pip install pipx
 pipx ensurepath
-pipx install git+https://github.com/dragonionx/dragonion-server
+pipx install git+https://github.com/kotikotprojects/dragonion-server
 ```
 Launch options:
 - After fresh install, re-run your shell, than run `dragonion-server` 
@@ -173,7 +173,7 @@ pipx upgrade dragonion-server
 ##### Clone repo and use venv
 Fresh installation:
 ```commandline
-git clone https://github.com/dragonionx/dragonion-server
+git clone https://github.com/kotikotprojects/dragonion-server
 cd dragonion-server
 python -m venv venv
 venv\Scripts\activate
@@ -231,7 +231,7 @@ pip install pipx
 Fresh installation:
 ```
 pipx ensurepath
-pipx install git+https://github.com/dragonionx/dragonion-server
+pipx install git+https://github.com/kotikotprojects/dragonion-server
 ```
 You may use `python3 -m pipx` for this
 
@@ -250,7 +250,7 @@ pipx upgrade dragonion-server
 ##### Clone repo and use venv
 Fresh installation:
 ```commandline
-git clone https://github.com/dragonionx/dragonion-server
+git clone https://github.com/kotikotprojects/dragonion-server
 cd dragonion-server
 python3 -m venv venv
 . venv/bin/activate
@@ -304,7 +304,7 @@ pip3 install pipx
 Fresh installation:
 ```
 pipx ensurepath
-pipx install git+https://github.com/dragonionx/dragonion-server
+pipx install git+https://github.com/kotikotprojects/dragonion-server
 ```
 You may use `python3 -m pipx` for this
 
@@ -323,7 +323,7 @@ pipx upgrade dragonion-server
 ##### Clone repo and use venv
 Fresh installation:
 ```commandline
-git clone https://github.com/dragonionx/dragonion-server
+git clone https://github.com/kotikotprojects/dragonion-server
 cd dragonion-server
 python3 -m venv venv
 . venv/bin/activate

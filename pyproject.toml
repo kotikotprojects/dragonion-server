@@ -19,7 +19,7 @@ click = "^8.1.3"
 attrs = "^23.1.0"
 dataclasses-json = "^0.5.9"
 websockets = "^11.0.3"
-dragonion-core = { git = "https://github.com/dragonionx/dragonion-core.git" }
+dragonion-core = { git = "https://github.com/kotikotprojects/dragonion-core.git" }
 
 
 [tool.poetry.scripts]
